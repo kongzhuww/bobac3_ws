@@ -1,0 +1,16 @@
+[submodule "src/relative_move"]
+	path = src/relative_move
+	url = https://gitee.com/reinovo/relative_move.git
+	branch = dev-zq
+[submodule "src/ar_pose"]
+	path = src/ar_pose
+	url = https://gitee.com/reinovo/ar_pose.git
+	branch = dev-zq
+[submodule "src/ar_track_alvar"]
+	path = src/ar_track_alvar
+	url = https://gitee.com/reinovo/ar_track_alvar.git
+	branch = dev-zq
+[submodule "src/auto_charging"]
+	path = src/auto_charging
+	url = https://gitee.com/reinovo/auto_charging.git
+	branch = dev-zq
