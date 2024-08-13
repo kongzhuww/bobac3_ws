@@ -1,52 +1,39 @@
 [submodule "src/relative_move"]
 	path = src/relative_move
 	url = https://gitee.com/reinovo/relative_move.git
-	branch = dev-zq
 [submodule "src/ar_pose"]
 	path = src/ar_pose
 	url = https://gitee.com/reinovo/ar_pose.git
-	branch = dev-zq
 [submodule "src/ar_track_alvar"]
 	path = src/ar_track_alvar
 	url = https://gitee.com/reinovo/ar_track_alvar.git
-	branch = dev-zq
 [submodule "src/auto_charging"]
 	path = src/auto_charging
 	url = https://gitee.com/reinovo/auto_charging.git
-	branch = dev-zq
 [submodule "src/rei_lidar_fuse"]
 	path = src/rei_lidar_fuse
 	url = https://gitee.com/reinovo/rei_lidar_fuse.git
-	branch = dev-zq
 [submodule "src/rei_robot_base"]
 	path = src/rei_robot_base
 	url = https://gitee.com/reinovo/rei_robot_base.git
-	branch = dev-zq
 [submodule "src/face_rec"]
 	path = src/face_rec
 	url = https://gitee.com/reinovo/face_rec.git
-	branch = dev-zq
 [submodule "src/berxel_camera"]
 	path = src/berxel_camera
 	url = https://gitee.com/reinovo/berxel_camera.git
-	branch = dev-zq
 [submodule "src/rei_ydlidar_nodelet"]
 	path = src/rei_ydlidar_nodelet
 	url = https://gitee.com/reinovo/rei_ydlidar_nodelet.git
-	branch = dev-zq
 [submodule "src/map_manager"]
 	path = src/map_manager
 	url = https://gitee.com/reinovo/map_manager.git
-	branch = dev-zq
 [submodule "src/robot_audio"]
 	path = src/robot_audio
 	url = https://gitee.com/reinovo/robot_audio.git
-	branch = dev-zq
 [submodule "src/pid_lib"]
 	path = src/pid_lib
 	url = https://gitee.com/reinovo/pid_lib.git
-	branch = dev-zq
 [submodule "src/robot_joy"]
 	path = src/robot_joy
 	url = https://gitee.com/reinovo/robot_joy.git
-	branch = dev-zq
