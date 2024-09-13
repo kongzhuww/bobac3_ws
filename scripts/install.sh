@@ -44,7 +44,7 @@ rm YDLidar-SDK -rf
 cp .reinovo ~ -rf
 sudo cp -p ./reinovo_bobac3.rules /etc/udev/rules.d/
 
-cd ~/fox_ws
+cd ~/bobac3_ws
 catkin_make -j4
 
 HOME_PATH=~
