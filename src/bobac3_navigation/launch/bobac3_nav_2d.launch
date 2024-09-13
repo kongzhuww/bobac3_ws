@@ -3,6 +3,7 @@
   <arg name="map_file_name" default="home"/>
 	<arg name="location_method" default="amcl" 
 				doc="location type [amcl, cartographer]"/>
+	<arg name="map_directory" default="$(env MAP_DIRECTORY)"/>
 	<!--bobac3 model description-->
   <include file="$(find bobac3_description)/launch/display.launch">
     <arg name="open_rviz" value="false"/>
@@ -14,6 +15,7 @@
 	<!--map_server-->
 	<include file="$(find map_manager)/launch/map_load.launch">
 		<arg name="map_file" value="$(arg map_file_name)"/>
+		<arg name="map_directory" value="$(arg map_directory)"/>
 	</include>
 	<!--move_base-->
 	<include file="$(find bobac3_navigation)/launch/move_base.launch"/>
