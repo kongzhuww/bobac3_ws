@@ -9,9 +9,9 @@
     <arg name="open_rviz" value="false"/>
   </include>
 	<!--bobac3 base-->
-	<include file="$(find rei_robot_base)/launch/bobac3_base.launch"/>
+	<include file="$(find rei_robot_base)/launch/base.launch"/>
 	<!--laser sensor-->
-  	<include file="$(find rei_ydlidar_nodelet)/launch/nodelet_2_lidar.launch" />
+  	<include file="$(find rei_ydlidar_nodelet)/launch/lidar.launch" />
 	<!--map_server-->
 	<include file="$(find map_manager)/launch/map_load.launch">
 		<arg name="map_file" value="$(arg map_file_name)"/>
