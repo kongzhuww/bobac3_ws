@@ -42,7 +42,7 @@ make&&sudo make install
 cd ../..
 rm YDLidar-SDK -rf
 cp .reinovo ~ -rf
-sudo cp -p ./reinovo_bobac3.rules /etc/udev/rules.d/
+sudo cp -p ./100-reinovo-bobac3.rules /etc/udev/rules.d/
 
 cd ~/bobac3_ws
 catkin_make -j4
