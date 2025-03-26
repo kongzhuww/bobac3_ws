@@ -42,3 +42,6 @@
 	path = src/bobac3_description
 	url = git@gitee.com:reinovo/bobac3_description.git
 	branch = dev_zy
+[submodule "src/cspc_lidar"]
+	path = src/cspc_lidar
+	url = git@gitee.com:reinovo/cspc_lidar.git
