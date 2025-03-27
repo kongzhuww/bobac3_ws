@@ -47,7 +47,7 @@ sudo cp -p ./100-reinovo-bobac3.rules /etc/udev/rules.d/
 
 echo "开始安装berxel-sdk"
 cd ~
-git clone -b dev_zy git@gitee.com:reinovo/berxel-sdk.git
+git clone -b dev_zy https://gitee.com/reinovo/berxel-sdk.git
 cd berxel-sdk
 CUR_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 echo "当前脚本目录: $CUR_DIR"
