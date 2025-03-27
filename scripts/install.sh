@@ -33,6 +33,7 @@ else
 fi
 
 sudo apt install ros-$ROS_DISTRO-navigation* ros-$ROS_DISTRO-slam-gmapping ros-$ROS_DISTRO-teb-local-planner ros-$ROS_DISTRO-teleop-twist-keyboard libmodbus-dev sox ros-$ROS_DISTRO-dwa-local-planner -y
+echo "开始安装YDLidar-SDK"
 git clone -b V1.1.3 https://gitee.com/reinovo/YDLidar-SDK.git
 cd YDLidar-SDK
 mkdir build
@@ -44,6 +45,23 @@ rm YDLidar-SDK -rf
 cp .reinovo ~ -rf
 sudo cp -p ./100-reinovo-bobac3.rules /etc/udev/rules.d/
 
+echo "开始安装berxel-sdk"
+cd ~
+git clone -b dev_zy git@gitee.com:reinovo/berxel-sdk.git
+cd berxel-sdk
+CUR_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+echo "当前脚本目录: $CUR_DIR"
+# 避免重复添加
+if ! grep -q "export BERXEL_SDK_LIBRARY=" ~/.bashrc; then
+    echo "export BERXEL_SDK_LIBRARY=$CUR_DIR" >> ~/.bashrc
+fi
+if ! grep -q "export LD_LIBRARY_PATH=.*$CUR_DIR/libs" ~/.bashrc; then
+    echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:$CUR_DIR/libs" >> ~/.bashrc
+fi
+echo "✅ 环境变量已永久写入 ~/.bashrc"
+source ~/.bashrc
+
+echo "开始安装reinovo-bobac3"
 cd ~/bobac3_ws
 catkin_make -j4
 
