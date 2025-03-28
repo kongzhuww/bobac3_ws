@@ -36,12 +36,12 @@
 	url = https://gitee.com/reinovo/robot_joy.git
 [submodule "src/berxel_camera"]
 	path = src/berxel_camera
-	url = git@gitee.com:reinovo/berxel_camera.git
+	url = https://gitee.com/reinovo/berxel_camera.git
 	branch = dev_zy
 [submodule "src/bobac3_description"]
 	path = src/bobac3_description
-	url = git@gitee.com:reinovo/bobac3_description.git
+	url = https://gitee.com/reinovo/bobac3_description.git
 	branch = dev_zy
 [submodule "src/cspc_lidar"]
 	path = src/cspc_lidar
-	url = git@gitee.com:reinovo/cspc_lidar.git
+	url = https://gitee.com/reinovo/cspc_lidar.git
