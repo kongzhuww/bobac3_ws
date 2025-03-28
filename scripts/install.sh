@@ -43,7 +43,7 @@ make&&sudo make install
 cd ../..
 rm YDLidar-SDK -rf
 cp .reinovo ~ -rf
-sudo cp -p ./reinovo_bobac3.rules /etc/udev/rules.d/
+#sudo cp -p ./reinovo_bobac3.rules /etc/udev/rules.d/
 
 echo "开始安装berxel-sdk"
 cd ~
