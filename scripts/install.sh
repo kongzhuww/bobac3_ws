@@ -78,7 +78,7 @@ sed -i "/$TARGET_STRING4/d" "$HOME_PATH/.bashrc"
 sed -i "/$TARGET_STRING5/d" "$HOME_PATH/.bashrc"
 echo "export REI_ROBOT=bobac3" >> ~/.bashrc
 echo "export MAP_DIRECTORY=~/.reinovo/maps" >> ~/.bashrc
-echo "export FACE_DIRECTORY=~/.reinovo/faces" >> ~/.bashrc
+echo "export FACE_DIRECTORY=~/.reinovo/face_data" >> ~/.bashrc
 echo "export LASER_TYPE="CSPC"" >> ~/.bashrc
 source ~/.bashrc
 echo "source ~/bobac3_ws/devel/setup.bash --extend" >> ~/.bashrc
