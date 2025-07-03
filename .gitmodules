@@ -37,11 +37,9 @@
 [submodule "src/berxel_camera"]
 	path = src/berxel_camera
 	url = https://gitee.com/reinovo/berxel_camera.git
-	branch = dev_zy
 [submodule "src/bobac3_description"]
 	path = src/bobac3_description
 	url = https://gitee.com/reinovo/bobac3_description.git
-	branch = dev_zy
 [submodule "src/cspc_lidar"]
 	path = src/cspc_lidar
 	url = https://gitee.com/reinovo/cspc_lidar.git
