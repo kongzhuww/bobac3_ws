@@ -1,6 +1,6 @@
 ## 获取代码
 
-### 下载dev_zy分支
+### 下载
 ```bash
 git clone --recurse-submodules https://gitee.com/reinovo/bobac3_ws.git
 ```
