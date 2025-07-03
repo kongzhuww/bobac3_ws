@@ -19,9 +19,6 @@
 [submodule "src/face_rec"]
 	path = src/face_rec
 	url = https://gitee.com/reinovo/face_rec.git
-[submodule "src/rei_ydlidar_nodelet"]
-	path = src/rei_ydlidar_nodelet
-	url = https://gitee.com/reinovo/rei_ydlidar_nodelet.git
 [submodule "src/map_manager"]
 	path = src/map_manager
 	url = https://gitee.com/reinovo/map_manager.git
