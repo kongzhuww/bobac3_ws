@@ -29,7 +29,7 @@ TebLocalPlannerROS:
 #  min_turning_radius: 0.0 # diff-drive robot (can turn on place!)
 
  max_vel_x: 0.5
- max_vel_x_backwards: 0.1
+ max_vel_x_backwards: 0.5
  max_vel_y: 0.3
  max_vel_theta: 1.0
  acc_lim_x: 0.2
