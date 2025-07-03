@@ -10,6 +10,7 @@ global_costmap:
   #   inflation_radius:     0.3  # max. distance from an obstacle at which costs are incurred for planning paths.
   plugins:
     - {name: static_layer,            type: "costmap_2d::StaticLayer"}
+    - {name: virtual_wall_layer,     type: "costmap_2d::StaticLayer"}
     - {name: obstacle_layer,          type: "costmap_2d::VoxelLayer"}
     - {name: inflation_layer,  type: "costmap_2d::InflationLayer"}
 

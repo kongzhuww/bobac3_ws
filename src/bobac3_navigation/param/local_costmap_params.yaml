@@ -10,4 +10,5 @@ local_costmap:
    transform_tolerance: 0.5
    plugins:
     - {name: obstacle_layer,      type: "costmap_2d::VoxelLayer"}
+    - {name: virtual_wall_layer,     type: "costmap_2d::StaticLayer"}
     - {name: inflation_layer,     type: "costmap_2d::InflationLayer"}
