@@ -40,3 +40,6 @@
 [submodule "src/cspc_lidar"]
 	path = src/cspc_lidar
 	url = https://gitee.com/reinovo/cspc_lidar.git
+[submodule "src/ros_map_edit"]
+	path = src/ros_map_edit
+	url = https://gitee.com/reinovo/ros_map_edit.git

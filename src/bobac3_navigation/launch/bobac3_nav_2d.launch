@@ -23,6 +23,10 @@
 	<include file="$(find bobac3_navigation)/launch/$(arg location_method).launch">
 	 <arg name="map_file" value="$(arg map_file_name)"/>
 	</include>
+	<!--virtual wall map publisher-->
+	<node name="virtual_wall_map_publisher" pkg="ros_map_edit" type="virtual_wall_map_publisher.py">
+		<param name="map_file" value="$(arg map_directory)/$(arg map_file_name).yaml"/>
+	</node>
 	
 	<!--  **************** Visualisation ****************  -->
 	<group if="$(arg open_nav_rviz)"> 
