@@ -2,12 +2,13 @@
 
 ### 下载dev_zy分支
 ```bash
-git clone --recurse-submodules -b dev_zy https://gitee.com/reinovo/bobac3_ws.git
+git clone --recurse-submodules https://gitee.com/reinovo/bobac3_ws.git
 ```
 
 ### 更新子模块
 
 ```bash
+git submodule sync
 git submodule update --init --recursive
 ```
 
