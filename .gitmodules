@@ -43,3 +43,6 @@
 [submodule "src/ros_map_edit"]
 	path = src/ros_map_edit
 	url = https://gitee.com/reinovo/ros_map_edit.git
+[submodule "src/rei_robot_cruise"]
+	path = src/rei_robot_cruise
+	url = https://gitee.com/reinovo/rei_robot_cruise.git
