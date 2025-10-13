@@ -96,11 +96,11 @@ fi
 if [ "$ALL_TOPICS_OK" = true ]; then
     echo -e "${GREEN}所有相机话题已检测到，开始测试...${NC}"
     # 运行普通相机测试脚本
-    rosrun dobot_test normal_video.py
+    rosrun bobac3_test normal_video.py
     
     echo -e "${GREEN}\n===== 开始 Berxel 相机测试 =====${NC}"
     # 运行Berxel相机测试脚本
-    rosrun dobot_test berxel_camera_test.py
+    rosrun bobac3_test berxel_camera_test.py
 else
     echo -e "${RED}部分相机话题未检测到，无法进行全部测试！${NC}"
 fi

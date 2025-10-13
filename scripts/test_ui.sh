@@ -51,6 +51,7 @@ while true; do
     # 相机设备检测
     if [ -n "$missing_cameras" ]; then
         echo -e "${RED}❌ 缺失相机设备：${NC}"
+        echo -e "请检查是否存在video设备文件"
         for d in $missing_cameras; do echo " - $d"; done
     else
         echo -e "${GREEN}✅ 所有相机设备（普通相机和Berxel相机）就绪${NC}"

@@ -27,11 +27,11 @@ if ! rostopic list | grep -q "/rear_lidar/scan"; then
     exit 1
 fi
 
-rviz -d ~/bobac3_ws/src/dobot_test/rviz/display_scan.rviz &
+rviz -d ~/bobac3_ws/src/bobac3_test/rviz/display_scan.rviz &
 RVIZ_PID=$!
 
 echo -e "${GREEN}激光雷达话题已检测到，开始运行帧率测试脚本...${NC}"
-rosrun dobot_test lidar_test.py
+rosrun bobac3_test lidar_test.py
 
 echo -e "${GREEN}测试完成，准备关闭激光雷达驱动...${NC}"
 kill $LAUNCH_PID

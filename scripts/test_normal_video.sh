@@ -22,7 +22,7 @@ RQT_PID2=$!
 sleep 2  # 等待rqt_image_view启动
 
 echo -e "${GREEN}===== 开始执行双摄像头帧率测试脚本 =====${NC}"
-rosrun dobot_test normal_video.py
+rosrun bobac3_test normal_video.py
 
 echo -e "${GREEN}===== 关闭摄像头驱动和图像窗口 =====${NC}"
 kill $RQT_PID1 $RQT_PID2

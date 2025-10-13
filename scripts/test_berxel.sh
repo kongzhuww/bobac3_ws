@@ -13,7 +13,7 @@ rqt_image_view /bobac3_base/rgb/rgb_raw &
 RQT_PID=$!
 
 echo -e "${GREEN}===== 开始执行 Berxel Base Color 帧率测试脚本 =====${NC}"
-rosrun dobot_test berxel_camera_test.py
+rosrun bobac3_test berxel_camera_test.py
 
 echo -e "${GREEN}===== 关闭 Berxel 相机驱动及图像查看器 =====${NC}"
 kill $LAUNCH_PID
