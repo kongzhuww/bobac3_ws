@@ -1,10 +1,10 @@
 <launch>
   <!-- Arguments -->
-  <arg name="configuration_basename" default="bobac3_lds_2d.lua"/>
+  <arg name="configuration_basename" default="bobac3_2d.lua"/>
   <arg name="set_base_frame" default="base_footprint"/>
   <arg name="set_odom_frame" default="odom"/>
   <arg name="set_map_frame"  default="map"/>
-  <arg name="scan_topic" default="fuse_scan" />
+  <arg name="laser_topic"    default="/fuse_scan"/>
 
   <!-- Gmapping -->
   <node pkg="gmapping" type="slam_gmapping" name="bobac3_slam_gmapping" output="screen">
@@ -12,8 +12,7 @@
     <param name="odom_frame" value="$(arg set_odom_frame)"/>
     <param name="map_frame"  value="$(arg set_map_frame)"/>
     <param name="map_update_interval" value="2.0"/>
-    <param name="maxUrange" value="7.0"/>
-    <param name="maxRange" value="6.0"/>
+    <param name="maxUrange" value="25.0"/>
     <param name="sigma" value="0.05"/>
     <param name="kernelSize" value="1"/>
     <param name="lstep" value="0.05"/>
@@ -36,11 +35,11 @@
     <param name="ymin" value="-10.0"/>
     <param name="xmax" value="10.0"/>
     <param name="ymax" value="10.0"/>
-    <param name="delta" value="0.05"/>
+    <param name="delta" value="0.01"/>
     <param name="llsamplerange" value="0.01"/>
     <param name="llsamplestep" value="0.01"/>
     <param name="lasamplerange" value="0.005"/>
     <param name="lasamplestep" value="0.005"/>
-    <remap from="scan" to="$(arg scan_topic)"/>
+    <remap from="/scan" to="$(arg laser_topic)"/>
   </node>
 </launch>
