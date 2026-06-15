@@ -681,9 +681,9 @@ class CompetitionTask:
         - 从馆内出发：先原地转 180° 让摄像头朝后，TEB 倒车行驶，
           沿途平滑将 yaw 过渡到目标值，到达时摄像头自然朝外
         """
-        if not self.at_origin:
-            rospy.loginfo("[Nav] 出馆转身，准备倒车入库...")
-            self.rotate_in_place(math.pi)
+        # if not self.at_origin:
+        #     rospy.loginfo("[Nav] 出馆转身，准备倒车入库...")
+        #     self.rotate_in_place(math.pi)
 
         client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
         if not client.wait_for_server(rospy.Duration(5)):
