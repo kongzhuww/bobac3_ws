@@ -8,8 +8,8 @@ TebLocalPlannerROS:
  dt_ref: 0.3
  dt_hysteresis: 0.1
  max_samples: 800
- global_plan_overwrite_orientation: false
- allow_init_with_backwards_motion: False
+ global_plan_overwrite_orientation: true
+ allow_init_with_backwards_motion: True
  max_global_plan_lookahead_dist: 2.5
  global_plan_viapoint_sep: 0.5
  global_plan_prune_distance: 1
@@ -19,8 +19,8 @@ TebLocalPlannerROS:
     
  # Robot
          
- max_vel_x: 0.5
- max_vel_x_backwards: 0.3
+ max_vel_x: 0.6
+ max_vel_x_backwards: 0.6
  max_vel_y: 0.4
  max_vel_theta: 1.0
  acc_lim_x: 0.35
@@ -67,7 +67,7 @@ TebLocalPlannerROS:
  weight_acc_lim_x: 1
  weight_acc_lim_theta: 1
  weight_kinematics_nh: 200
- weight_kinematics_forward_drive: 10000
+ weight_kinematics_forward_drive: 1
  weight_kinematics_turning_radius: 100
  weight_optimaltime: 1 # must be > 0
  weight_shortest_path: 0

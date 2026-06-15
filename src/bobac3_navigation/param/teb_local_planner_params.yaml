@@ -8,8 +8,8 @@ TebLocalPlannerROS:
  dt_ref: 0.3
  dt_hysteresis: 0.1
  max_samples: 800
- global_plan_overwrite_orientation: false
- allow_init_with_backwards_motion: False
+ global_plan_overwrite_orientation: true   # 设为true，使TEB覆盖全局规划器那头朝里的不合理朝向，强制保持yaw=0入库
+ allow_init_with_backwards_motion: True   # 允许轨迹从倒退方向初始化，实现倒车入库
  max_global_plan_lookahead_dist: 2.5
  global_plan_viapoint_sep: 0.5
  global_plan_prune_distance: 1
@@ -29,12 +29,12 @@ TebLocalPlannerROS:
 #  min_turning_radius: 0.0 # diff-drive robot (can turn on place!)
 
  max_vel_x: 0.5
- max_vel_x_backwards: 0.5
+ max_vel_x_backwards: 0.3   # 倒退最大速度，入库用慢速保证精度
  max_vel_y: 0.3
- max_vel_theta: 1.0
+ max_vel_theta: 1.0        # 还原默认角速度限制
  acc_lim_x: 0.2
  acc_lim_y: 0.1
- acc_lim_theta: 0.3
+ acc_lim_theta: 0.3       # 还原默认角加速度限制
  min_turning_radius: 0.0 # diff-drive robot (can turn on place!)
 
  footprint_model:
@@ -44,7 +44,7 @@ TebLocalPlannerROS:
  # GoalTolerance
     
  xy_goal_tolerance: 0.1
- yaw_goal_tolerance: 0.05
+ yaw_goal_tolerance: 0.15   # 适当放宽终点朝向要求，防止在终点为了精细调整而不断扭动
  free_goal_vel: False
  complete_global_plan: True
     
@@ -75,8 +75,8 @@ TebLocalPlannerROS:
  weight_max_vel_theta: 1
  weight_acc_lim_x: 1
  weight_acc_lim_theta: 1
- weight_kinematics_nh: 200
- weight_kinematics_forward_drive: 100
+ weight_kinematics_nh: 0      # 麦克纳姆全向轮：设为0允许任意方向平移，无需转头
+ weight_kinematics_forward_drive: 0    # 设为0，消除正向行驶偏好，使规划器天然选择倒着退入目标点
  weight_kinematics_turning_radius: 100
  weight_optimaltime: 1 # must be > 0
  weight_shortest_path: 0
@@ -114,7 +114,7 @@ TebLocalPlannerROS:
  
  shrink_horizon_backup: True
  shrink_horizon_min_duration: 10
- oscillation_recovery: True
+ oscillation_recovery: False                  # 禁用振荡恢复，防止机器人不断微调扭动
  oscillation_v_eps: 0.1
  oscillation_omega_eps: 0.1
  oscillation_recovery_min_duration: 10

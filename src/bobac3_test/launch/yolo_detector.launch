@@ -1,0 +1,26 @@
+<launch>
+  <!-- YOLOv8 物体检测节点 -->
+  <!--
+    参数说明（可通过 roslaunch arg 或 rosparam 设置）：
+      model_name     - 模型文件名（默认 best.pt），放在 models/ 目录下
+      conf_threshold - 置信度阈值（默认 0.5）
+      infer_every_n  - 每 N 帧推理一次（默认 3），降低 CPU 占用
+      publish_image  - 是否发布带标注框的图像话题（默认 true）
+      camera_topic   - 订阅的摄像头话题（默认 /base_camera/image_raw）
+  -->
+
+  <arg name="model_name"     default="best.pt" />
+  <arg name="conf_threshold" default="0.5" />
+  <arg name="infer_every_n"  default="3" />
+  <arg name="publish_image"  default="true" />
+  <arg name="camera_topic"   default="/base_camera/image_raw" />
+
+  <node name="yolo_detector" pkg="bobac3_test" type="yolo_detector.py" output="screen">
+    <param name="model_name"     value="$(arg model_name)" />
+    <param name="conf_threshold" value="$(arg conf_threshold)" />
+    <param name="infer_every_n"  value="$(arg infer_every_n)" />
+    <param name="publish_image"  value="$(arg publish_image)" />
+    <param name="camera_topic"   value="$(arg camera_topic)" />
+  </node>
+
+</launch>

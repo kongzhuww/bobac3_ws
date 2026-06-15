@@ -3,3 +3,6 @@ devel/
 src/CMakeLists.txt
 .catkin_workspace
 .vscode/
+memory/
+__pycache__/
+*.wav

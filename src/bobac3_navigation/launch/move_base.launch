@@ -1,7 +1,7 @@
 
 <launch>
   <arg name="odom_topic" default="odom" />
-  <arg name="vel_topic" default="cmd_vel" />
+  <arg name="vel_topic" default="cmd_vel_raw" />
 
   <node pkg="move_base" type="move_base" respawn="false" name="move_base_node" output="screen">
     <rosparam file="$(find bobac3_navigation)/param/costmap_common_params_global.yaml" command="load" ns="global_costmap" />

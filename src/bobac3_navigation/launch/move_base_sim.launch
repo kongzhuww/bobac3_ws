@@ -8,11 +8,11 @@
     <rosparam file="$(find bobac3_navigation)/param/sim/costmap_common_params.yaml" command="load" ns="local_costmap" />   
     <rosparam file="$(find bobac3_navigation)/param/sim/local_costmap_params.yaml" command="load" />   
     <rosparam file="$(find bobac3_navigation)/param/sim/global_costmap_params.yaml" command="load" />
-    <rosparam file="$(find bobac3_navigation)/param/sim/dwa_local_planner_params.yaml" command="load" />
-    <!-- <rosparam file="$(find bobac3_navigation)/param/sim/teb_local_planner_params.yaml" command="load" /> -->
+    <!-- <rosparam file="$(find bobac3_navigation)/param/sim/dwa_local_planner_params.yaml" command="load" /> -->
+    <rosparam file="$(find bobac3_navigation)/param/sim/teb_local_planner_params.yaml" command="load" />
     <rosparam file="$(find bobac3_navigation)/param/sim/move_base_params.yaml" command="load" />
     <!--rosparam file="$(find bobac3_navigation)/param/sim/global_planner_params.yaml" command="load" /-->
-    <rosparam file="$(find bobac3_navigation)/param/sim/navfn_global_planner_params.yaml" command="load" />
+    <rosparam file="$(find bobac3_navigation)/param/sim/global_planner_params.yaml" command="load" />
 
     <remap from="odom" to="$(arg odom_topic)"/>
     <remap from="cmd_vel" to="$(arg vel_topic)"/>
