@@ -39,7 +39,7 @@ obstacle_layer:
     max_obstacle_height: 0.5
     obstacle_range: 3.0
     raytrace_range : 3.0
-    inf_is_valid: false
+    inf_is_valid: true
     
   depthscan:
     data_type: LaserScan

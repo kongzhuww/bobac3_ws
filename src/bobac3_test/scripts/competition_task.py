@@ -581,7 +581,7 @@ class CompetitionTask:
 
     def detect_extinguisher(self):
         """检测灭火器是否放置到位，返回 True/False"""
-        return self._check_detection("fire extinguisher")
+        return self._check_detection("extinguisher")
 
     def _check_detection(self, keyword, timeout=3.0):
         """
