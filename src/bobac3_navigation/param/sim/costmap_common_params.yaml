@@ -59,7 +59,7 @@ obstacle_layer:
 inflation_layer:
   enabled: true
   cost_scaling_factor:  5.0   # 配合大膨胀半径，代价衰减更平缓
-  inflation_radius:     0.2   # 25cm缓冲区，拐角不贴墙
+  inflation_radius:     0.15   # 15cm缓冲区，方便通过狭窄区域
 
 static_layer:
   enabled: true
