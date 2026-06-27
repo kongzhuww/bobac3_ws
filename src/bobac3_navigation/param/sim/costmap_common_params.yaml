@@ -1,7 +1,7 @@
 max_obstacle_height: 0.80  # assume something like an arm is mounted on top of the robot
 
 # Obstacle Cost Shaping (http://wiki.ros.org/costmap_2d/hydro/inflation)
-robot_radius: 0.21  # 保护摄像头突出部分//0.25是我自己改的，这个是只有0.25才不会转弯
+robot_radius: 0.12  # 保护摄像头突出部分//0.25是我自己改的，这个是只有0.25才不会转弯
 # footprint: [[x0, y0], [x1, y1], ... [xn, yn]]  # if the robot is not circular
 
 

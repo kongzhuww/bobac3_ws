@@ -13,10 +13,12 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   sensor_msgs
   std_msgs
+  gazebo_ros
 )
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
+find_package(gazebo REQUIRED)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -120,6 +122,7 @@ catkin_package(
 include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
+  ${GAZEBO_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -147,6 +150,9 @@ include_directories(
 ## same as for the library above
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
+add_executable(gazebo_light_bridge src/gazebo_light_bridge.cpp)
+target_link_libraries(gazebo_light_bridge ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
+
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
@@ -164,7 +170,6 @@ include_directories(
 catkin_install_python(PROGRAMS
   scripts/yolo_detector.py
   scripts/competition_task.py
-  scripts/go_to_place.py
   scripts/test_base.py
   scripts/test_voice_only.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

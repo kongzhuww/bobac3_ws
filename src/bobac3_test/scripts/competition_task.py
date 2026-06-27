@@ -8,19 +8,22 @@ import time
 import math
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from face_rec.msg import face_results
-from std_msgs.msg import String
+from std_msgs.msg import String, Bool
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Twist
+from ar_pose.srv import Track, TrackRequest
+from relative_move.srv import SetRelativeMove, SetRelativeMoveRequest
 
 # 入库方向说明：yaw=0 时摄像头朝外（朝向走道）
 # TEB 已开启 allow_init_with_backwards_motion，规划器自动倒车入库停在此朝向
 LOCATIONS = {
-    "起点":  (0.0,  -0.2, 0.0),
+    "起点":  (0.05, -0.1, 0.0),
     "北京馆": (2.55, 0.1,  0.0),
     "广州馆": (2.55, 1.1,  0.0),
     "吉林馆": (2.55, 2.1,  0.0),
-    "深圳馆": (1.05, 1.1,  0.0),
-    "上海馆": (1.05, 2.1,  0.0),
+    "深圳馆": (1.1, 1.1,  0.0),
+    "上海馆": (1.1, 2.1,  0.0),
 }
 
 # 任务二：巡检点（5个指定位置，顺序巡检，全部 yaw=0）
@@ -28,12 +31,12 @@ INSPECTION_POINTS = [
     ("巡检点1", 2.55, 0.1,  0.0),
     ("巡检点2", 2.55, 1.1,  0.0),
     ("巡检点3", 2.55, 2.1,  0.0),
-    ("巡检点4", 1.05, 2.1,  0.0),
-    ("巡检点5", 1.05, 1.1,  0.0),
+    ("巡检点4", 1.1, 2.1,  0.0),
+    ("巡检点5", 1.1, 1.1,  0.0),
 ]
 
-# 充电桩位置（起点处）
-CHARGING_STATION = (0.0, -0.2, 0.0)
+# 充电桩位置（大体位置：x=0.8, y=1.94, yaw=-1.57 即 -90度朝下）
+CHARGING_STATION = (0.45, 1.94, -1.57)          
 
 # 巡检指令关键词
 INSPECTION_COMMANDS = [
@@ -100,6 +103,12 @@ def extract_command(text):
         if cmd in text:
             return True
     return False
+
+def extract_charge_command(text):
+    """从语音中检测是否包含直接充电指令"""
+    if not text:
+        return False
+    return "充电" in text
 
 def extract_switch_to_task2(text):
     """从语音中检测是否要切换到任务二"""
@@ -212,7 +221,7 @@ class CompetitionTask:
         """
         mode: 'visitor' — 任务一：参观模式，人脸唤醒后语音导航
               'admin'   — 任务二：管理模式，识别人脸判断管理员
-              'train'   — 任务三：训练模式，打字控制 + 语音切换，跳过人脸
+              'train'   — 任务三：训练模式，打字控制，跳过人脸
         """
         self.mode = mode
         self.face_flag = False
@@ -231,8 +240,9 @@ class CompetitionTask:
         rospy.Subscriber('/yolo/detections', String, self._detection_cb)
         self._last_detections = ""
 
-        # 通知 Windows 端开始/停止人脸检测
+        # 通知 Windows 端开始/停止人脸检测和语音识别
         self.face_trigger = rospy.Publisher('/face_trigger', String, queue_size=1)
+        self.voice_trigger_pub = rospy.Publisher('/voice_trigger', String, queue_size=1)
         self.cmd_vel_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=1)
         time.sleep(0.5)  # 等 publisher 注册完成
 
@@ -271,6 +281,9 @@ class CompetitionTask:
         """等待 Windows 端 /voice_command 语音指令（阻塞直到收到）"""
         rospy.loginfo("\n" + "="*30 + " >>> 请说话 (%s) <<< " % prompt + "="*30)
 
+        # 通知 Windows 打开麦克风
+        self.voice_trigger_pub.publish("start")
+        
         self.voice_cmd = None
 
         while self.voice_cmd is None and not rospy.is_shutdown():
@@ -470,20 +483,22 @@ class CompetitionTask:
             return
 
         # -------- 阶段1.5：随机生成灭火器和火焰标记 --------
-        rospy.loginfo("[Task2] Spawning random fire/extinguisher markers...")
-        scripts_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../../scripts")
-        scripts_dir = os.path.abspath(scripts_dir)
-        import sys
-        if scripts_dir not in sys.path:
-            sys.path.insert(0, scripts_dir)
-        import random_spawn
-        random_spawn.main()          # 随机放置，自动清除上一轮
+        # rospy.loginfo("[Task2] Spawning random fire/extinguisher markers...")
+        # scripts_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../../scripts")
+        # scripts_dir = os.path.abspath(scripts_dir)
+        # import sys
+        # if scripts_dir not in sys.path:
+        #     sys.path.insert(0, scripts_dir)
+        # import random_spawn
+        # random_spawn.main()          # 官方环境已由 ./reinovo_bobac3_sim 自动生成，此处注释避免重复
+
 
         # -------- 阶段2：等待巡检指令 --------
         rospy.loginfo("[Task2] Waiting for inspection command...")
         play_audio("wait_command.wav")             # "请下达巡检指令"
 
         cmd_received = False
+        skip_inspection = False
         for attempt in range(3):
             text = self.wait_for_voice(prompt="巡检指令 %d/3" % (attempt+1))
 
@@ -493,8 +508,17 @@ class CompetitionTask:
                 self.mode = 'train'
                 return
 
+            if extract_charge_command(text):
+                cmd_received = True
+                skip_inspection = True
+                rospy.loginfo("[Task2] Charge command received: " + text)
+                # 直接播报准备充电的语音
+                play_audio("low_battery.wav") 
+                break
+
             if extract_command(text):
                 cmd_received = True
+                skip_inspection = False
                 rospy.loginfo("[Task2] Inspection command received: " + text)
                 play_audio("inspection_start.wav") # "收到指令，开始执行巡检任务"
                 break
@@ -510,20 +534,25 @@ class CompetitionTask:
             self.is_admin = False
             return
 
-        # -------- 阶段3：多点自主巡检 --------
-        anomalies = self.do_inspection()
-
-        # -------- 阶段4：巡检完成，播报结果 --------
-        rospy.loginfo("[Task2] Inspection complete, anomalies: %d" % len(anomalies))
-        if len(anomalies) > 0:
-            play_audio("inspection_anomaly_summary.wav")  # TODO: 待生成
-            for a in anomalies:
-                rospy.logwarn("  Anomaly: %s at %s" % (a[0], a[1]))
-        else:
-            play_audio("inspection_complete.wav")  # "巡检任务完成，一切正常"
+        if not skip_inspection:
+            # -------- 阶段3：多点自主巡检 --------
+            anomalies = self.do_inspection()
+    
+            # -------- 阶段4：巡检完成，播报结果 --------
+            rospy.loginfo("[Task2] Inspection complete, anomalies: %d" % len(anomalies))
+            if len(anomalies) > 0:
+                play_audio("inspection_anomaly_summary.wav")  # TODO: 待生成
+                for a in anomalies:
+                    rospy.logwarn("  Anomaly: %s at %s" % (a[0], a[1]))
+            else:
+                play_audio("inspection_complete.wav")  # "巡检任务完成，一切正常"
 
         # -------- 阶段5：自主对接充电 --------
         self.do_charging()
+
+        # -------- 阶段6：返回起点 --------
+        rospy.loginfo("[Task2] Charging complete, returning to origin...")
+        self.navigate_to_origin()
 
         # 重置状态
         self.recognized_name = ""
@@ -554,14 +583,39 @@ class CompetitionTask:
             fire = self.detect_fire()
             extinguisher = self.detect_extinguisher()
 
-            if fire:
-                rospy.logwarn("[Task2] FIRE detected at %s!" % name)
-                play_audio("fire_detected.wav")
-                anomalies.append(("火灾隐患", name))
+            if fire or not extinguisher:
+                # 只要存在任何隐患，先统一播放 4 秒警报音频（仅一次）
+                play_audio("fire_hazard.wav")
+                
+            # 建立巡检点与语音前缀的映射
+            pavilion_map = {
+                "巡检点1": "beijing",
+                "巡检点2": "guangzhou",
+                "巡检点3": "jilin",
+                "巡检点4": "shanghai",
+                "巡检点5": "shenzhen"
+            }
+            prefix = pavilion_map.get(name, "")
 
-            if not extinguisher:
+            if fire and not extinguisher:
+                rospy.logwarn("[Task2] FIRE and NO EXTINGUISHER at %s!" % name)
+                if prefix:
+                    play_audio(f"{prefix}_fire_no_extinguisher.wav")
+                anomalies.append(("火灾隐患", name))
+                anomalies.append(("未放置灭火器", name))
+            elif fire:
+                rospy.logwarn("[Task2] FIRE detected at %s!" % name)
+                if prefix:
+                    play_audio(f"{prefix}_fire.wav")
+                else:
+                    play_audio("fire_detected.wav")
+                anomalies.append(("火灾隐患", name))
+            elif not extinguisher:
                 rospy.logwarn("[Task2] NO extinguisher at %s!" % name)
-                play_audio("no_extinguisher.wav")
+                if prefix:
+                    play_audio(f"{prefix}_no_extinguisher.wav")
+                else:
+                    play_audio("no_extinguisher.wav")
                 anomalies.append(("未放置灭火器", name))
 
             if not fire and extinguisher:
@@ -605,20 +659,99 @@ class CompetitionTask:
         self._last_detections = msg.data
 
     # ============================================================
-    # 自主对接充电（任务二阶段5）
+    # 自主对接充电（任务二阶段5 & 任务三打字/语音触发）
     # ============================================================
+    def execute_ar_docking(self):
+        """调用 AR 码识别和 relative_move 进行精准对接"""
+        rospy.loginfo("[Docking] 等待服务 /track 启动...")
+        try:
+            rospy.wait_for_service('/track', timeout=5.0)
+        except rospy.ROSException:
+            rospy.logerr("[Docking] /track 服务未启动，对接失败")
+            return False
+
+        rospy.loginfo("[Docking] 等待服务 /relative_move 启动...")
+        try:
+            rospy.wait_for_service('/relative_move', timeout=5.0)
+        except rospy.ROSException:
+            rospy.logerr("[Docking] /relative_move 服务未启动，对接失败")
+            return False
+
+        track_client = rospy.ServiceProxy('/track', Track)
+        relmove_client = rospy.ServiceProxy('/relative_move', SetRelativeMove)
+
+        # 1. 寻找 AR 码并调整到 0.4 米
+        req_track = TrackRequest()
+        req_track.ar_id = 0
+        req_track.goal_dist = 0.4
+        rospy.loginfo("[Docking] 请求 /track 服务寻找 AR 码...")
+        try:
+            resp1 = track_client(req_track)
+            if resp1.success:
+                rospy.loginfo("[Docking] 二次定位成功：%s" % resp1.message)
+            else:
+                rospy.logerr("[Docking] 二次定位失败：%s" % resp1.message)
+                return False
+        except Exception as e:
+            rospy.logerr("[Docking] /track 调用异常：%s" % e)
+            return False
+
+        # 2. 后退 0.18 米
+        req_rel = SetRelativeMoveRequest()
+        req_rel.goal.x = -0.18
+        req_rel.goal.y = 0.0
+        req_rel.goal.theta = 0.0
+        req_rel.global_frame = "odom"
+        rospy.loginfo("[Docking] 请求后退 0.18 米（对接充电）...")
+        try:
+            resp2 = relmove_client(req_rel)
+            if resp2.success:
+                rospy.loginfo("[Docking] 后退对接成功！")
+            else:
+                rospy.logerr("[Docking] 后退失败")
+                return False
+        except Exception as e:
+            rospy.logerr("[Docking] /relative_move 调用异常：%s" % e)
+            return False
+
+        # 3. 停顿充电
+        rospy.sleep(2.0)
+
+        # 4. 前进 0.18 米（离开充电桩）
+        req_rel.goal.x = 0.18
+        rospy.loginfo("[Docking] 请求前进 0.18 米（脱离充电桩）...")
+        try:
+            resp3 = relmove_client(req_rel)
+            if resp3.success:
+                rospy.loginfo("[Docking] 前进脱离成功！")
+            else:
+                rospy.logerr("[Docking] 前进脱离失败")
+                return False
+        except Exception as e:
+            rospy.logerr("[Docking] /relative_move 调用异常：%s" % e)
+            return False
+
+        return True
+
     def do_charging(self):
-        """电量过低或任务结束后自动去充电桩（充电桩在起点）"""
-        rospy.loginfo("[Task2] Heading to charging station...")
+        """自动去充电桩并对接"""
+        rospy.loginfo("[Task2/3] Heading to charging station...")
         play_audio("low_battery.wav")              # "电量过低，正在前往充电桩"
 
-        success = self.navigate_to_origin()
+        # 1. 导航到充电桩大致位置
+        cx, cy, cyaw = CHARGING_STATION
+        success = self._navigate_with_reverse(cx, cy, cyaw)
 
         if success:
-            rospy.loginfo("[Task2] Charging dock reached!")
-            play_audio("charging_success.wav")     # TODO: 待生成 "充电对接成功"
+            rospy.loginfo("[Task2/3] Arrived at general charging area, starting AR docking...")
+            # 2. 调用 AR 自动对接
+            if self.execute_ar_docking():
+                rospy.loginfo("[Task2/3] Charging dock reached and docked!")
+                play_audio("charging_success.wav")     # TODO: 待生成 "充电对接成功"
+            else:
+                rospy.logwarn("[Task2/3] Docking failed!")
         else:
-            rospy.logwarn("[Task2] Failed to reach charging station")
+            rospy.logwarn("[Task2/3] Failed to reach general charging area")
 
     # ============================================================
     # 倒车入库导航工具集
@@ -698,13 +831,20 @@ class CompetitionTask:
         goal.target_pose.pose.orientation = yaw_to_quaternion(yaw)
 
         rospy.loginfo("[Nav] 导航到 (%.2f, %.2f, yaw=%.2f)" % (x, y, yaw))
-        client.send_goal(goal)
-        finished = client.wait_for_result(rospy.Duration(timeout))
+        
+        # 增加死循环重试机制：找不到路就一直试，直到成功
+        while not rospy.is_shutdown():
+            client.send_goal(goal)
+            finished = client.wait_for_result(rospy.Duration(timeout))
 
-        if finished and client.get_state() == actionlib.GoalStatus.SUCCEEDED:
-            rospy.loginfo("[Nav] 到达目标")
-            return True
-        rospy.logwarn("[Nav] 导航失败")
+            if finished and client.get_state() == actionlib.GoalStatus.SUCCEEDED:
+                rospy.loginfo("[Nav] 到达目标")
+                return True
+            else:
+                rospy.logwarn("[Nav] 路径被阻挡或导航失败，等待 2 秒后重新规划...")
+                client.cancel_goal()
+                rospy.sleep(2.0)
+                
         return False
 
     def navigate_to_venue(self, venue, timeout=NAV_TIMEOUT):
@@ -727,7 +867,7 @@ class CompetitionTask:
 
     # ============================================================
     # 任务三：训练模式
-    #   打字控制机器人去指定位置停留，支持语音说"切换到任务三"
+    #   打字控制机器人去指定位置停留
     # ============================================================
     def _cleanup_markers(self):
         """清除所有随机生成的标记"""
@@ -750,8 +890,6 @@ class CompetitionTask:
     clean       - 清除所有标记
     back        - 返回起点
     quit        - 退出训练模式，返回菜单
-  语音:
-    说 "切换到任务一" 或 "切换到任务二" 切换模式
         """)
         rospy.loginfo("[Task3] ================================")
 
@@ -761,19 +899,28 @@ class CompetitionTask:
         if scripts_dir not in sys.path:
             sys.path.insert(0, scripts_dir)
 
+        def check_switch_cmd(text):
+            """检查是否包含切换模式或充电桩命令"""
+            if extract_switch_to_task2(text):
+                rospy.loginfo("[Task3] Switch to task 2!")
+                self.mode = 'admin'
+                return True
+            if "切换到任务一" in text or "切换任务一" in text or "任务一" in text or "参观模式" in text or "任务1" in text:
+                rospy.loginfo("[Task3] Switch to task 1!")
+                self.mode = 'visitor'
+                return True
+            if "充电桩" in text or "去充电" in text:
+                rospy.loginfo("[Task3] Command '充电桩' received!")
+                self.do_charging()
+                return False # 执行完充电继续留在训练模式
+            return False
+
         def handle_voice_switch():
             """非阻塞检查语音切换指令"""
             if self.voice_cmd:
                 text = self.voice_cmd
                 self.voice_cmd = None
-                if extract_switch_to_task2(text):
-                    rospy.loginfo("[Task3] Voice switch to task 2!")
-                    self.mode = 'admin'
-                    return True
-                if "切换到任务一" in text or "切换任务一" in text or "任务一" in text or "参观模式" in text:
-                    rospy.loginfo("[Task3] Voice switch to task 1!")
-                    self.mode = 'visitor'
-                    return True
+                return check_switch_cmd(text)
             return False
 
         while not rospy.is_shutdown():
@@ -814,9 +961,11 @@ class CompetitionTask:
                 rospy.loginfo("[Task3] All markers cleaned")
             elif cmd == "back":
                 self.navigate_to_origin()
+            elif check_switch_cmd(cmd):
+                # 如果 check_switch_cmd 返回 True，说明切换了任务1/2，退出训练模式
+                break
             elif cmd == "" or cmd == "help":
                 print("  可用命令: goto, spawn, clean, back, quit")
-                print("  语音切换: 切换到任务一 / 切换到任务二 / 切换到任务三")
             else:
                 print("  未知命令: %s (输入 help 查看帮助)" % cmd)
 
@@ -834,7 +983,7 @@ if __name__ == '__main__':
     print("="*40)
     print(" 1. 参观模式 - 人脸唤醒 + 语音导航")
     print(" 2. 管理模式 - 人脸识别管理员")
-    print(" 3. 训练模式 - 打字控制 + 语音切换")
+    print(" 3. 训练模式 - 纯打字控制")
     print("="*40)
 
     choice = ""

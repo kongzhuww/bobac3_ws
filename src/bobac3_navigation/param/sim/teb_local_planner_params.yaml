@@ -19,8 +19,8 @@ TebLocalPlannerROS:
     
  # Robot
          
- max_vel_x: 0.6
- max_vel_x_backwards: 0.6
+ max_vel_x: 0.9
+ max_vel_x_backwards: 0.9
  max_vel_y: 0.4
  max_vel_theta: 1.0
  acc_lim_x: 0.35
@@ -34,7 +34,7 @@ TebLocalPlannerROS:
 
  # GoalTolerance
     
- xy_goal_tolerance: 0.1
+ xy_goal_tolerance: 0.03
  yaw_goal_tolerance: 0.05
  free_goal_vel: False
  complete_global_plan: True

@@ -35,8 +35,13 @@ def spawn(name, sdf_str, x, y, z, roll=0, pitch=0, yaw=0):
     rospy.wait_for_service('/gazebo/spawn_sdf_model', timeout=10)
     try:
         spawn_srv = rospy.ServiceProxy('/gazebo/spawn_sdf_model', SpawnModel)
-        import math
+        import math, re
         from geometry_msgs.msg import Quaternion as Q
+        # 将 SDF 内部的 model name 替换为唯一名称，防止 Gazebo 以固定名注册副本
+        sdf_str = re.sub(
+            r"<model\s+name='[^']*'",
+            f"<model name='{name}'",
+            sdf_str, count=1)
         # 欧拉角 -> 四元数：roll=绕X, pitch=绕Y, yaw=绕Z
         cr, sr = math.cos(roll/2), math.sin(roll/2)
         cp, sp = math.cos(pitch/2), math.sin(pitch/2)
@@ -79,6 +84,9 @@ def main():
 
     # ---- 1. 删除上一轮 ----
     rospy.loginfo("=== Cleaning up ===")
+    # 清理不带编号的旧残留模型（兼容旧版本）
+    delete("fire_hazard")
+    delete("fire_extinguisher")
     for i in range(1, 6):
         delete(f"fire_hazard_{i}")
         delete(f"fire_extinguisher_{i}")
@@ -95,6 +103,11 @@ def main():
     noext_count = random.randint(1, 2)
     noext_pts = set(random.sample(points, noext_count))
 
+    # 确保每个馆至少有一样东西（火或灭火器）
+    # 既没火也没灭火器的馆，强制给它加火
+    empty_pts = noext_pts - fire_pts
+    fire_pts = fire_pts | empty_pts
+
     hasext_pts = set(points) - noext_pts
 
     rospy.loginfo(f"Fire at:      {sorted(fire_pts)}")
@@ -107,14 +120,14 @@ def main():
         wx, wy = cfg["x"], cfg["y"]
 
         if idx in fire_pts:
-            # 火焰：贴墙，右移
+            # 火焰：贴墙，偏左
             spawn(f"fire_hazard_{idx}", fire_sdf,
-                  wx - 0.005, wy + 0.15, 0.2, roll=1.57, yaw=4.7124)
+                  wx - 0.005, wy + 0.05, 0.19, roll=1.57, yaw=4.7124)
 
         if idx in hasext_pts:
-            # 灭火器：贴墙，右移
+            # 灭火器：贴墙，偏右
             spawn(f"fire_extinguisher_{idx}", ext_sdf,
-                  wx - 0.005, wy + 0.15, 0.2, roll=1.57, yaw=4.7124)
+                  wx - 0.005, wy + 0.10, 0.19, roll=1.57, yaw=4.7124)
 
     rospy.loginfo("=== Done ===")
     rospy.loginfo("Expected anomalies:")
