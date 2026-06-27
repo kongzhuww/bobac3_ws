@@ -1,0 +1,6 @@
+<launch>
+    <node pkg="face_rec" type="encode_face.py" name="encode_face" output="screen">
+        <!-- 人脸数据库目录 -->
+        <param name="face_data" value="$(find face_rec)/face_data/"/>
+    </node>
+</launch>
